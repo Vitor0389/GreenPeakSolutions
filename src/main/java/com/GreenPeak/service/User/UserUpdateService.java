@@ -1,7 +1,6 @@
-package com.GreenPeak.service;
+package com.GreenPeak.service.User;
 
 import com.GreenPeak.model.User;
-import com.GreenPeak.model.UserDTO;
 import com.GreenPeak.repository.UserRepository;
 import org.springframework.stereotype.Service;
 

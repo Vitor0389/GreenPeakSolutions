@@ -1,4 +1,4 @@
-package com.GreenPeak.service;
+package com.GreenPeak.service.User;
 
 import com.GreenPeak.model.User;
 import com.GreenPeak.repository.UserRepository;

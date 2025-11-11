@@ -3,10 +3,10 @@ package com.GreenPeak.controller;
 import com.GreenPeak.model.User;
 import com.GreenPeak.model.UserDTO;
 import com.GreenPeak.repository.UserRepository;
-import com.GreenPeak.service.UserDeleteService;
-import com.GreenPeak.service.UserFindService;
-import com.GreenPeak.service.UserSaveService;
-import com.GreenPeak.service.UserUpdateService;
+import com.GreenPeak.service.User.UserDeleteService;
+import com.GreenPeak.service.User.UserFindService;
+import com.GreenPeak.service.User.UserSaveService;
+import com.GreenPeak.service.User.UserUpdateService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
