@@ -1,6 +1,7 @@
-package com.aprendizado.repository;
+package com.GreenPeak.repository;
 
-import com.aprendizado.model.User;
+
+import com.GreenPeak.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.UUID;

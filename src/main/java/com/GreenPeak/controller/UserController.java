@@ -1,12 +1,12 @@
-package com.aprendizado.controller;
+package com.GreenPeak.controller;
 
-import com.aprendizado.model.User;
-import com.aprendizado.model.UserDTO;
-import com.aprendizado.repository.UserRepository;
-import com.aprendizado.service.UserDeleteService;
-import com.aprendizado.service.UserFindService;
-import com.aprendizado.service.UserSaveService;
-import com.aprendizado.service.UserUpdateService;
+import com.GreenPeak.model.User;
+import com.GreenPeak.model.UserDTO;
+import com.GreenPeak.repository.UserRepository;
+import com.GreenPeak.service.UserDeleteService;
+import com.GreenPeak.service.UserFindService;
+import com.GreenPeak.service.UserSaveService;
+import com.GreenPeak.service.UserUpdateService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;

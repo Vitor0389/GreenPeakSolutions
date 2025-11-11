@@ -1,10 +1,10 @@
-package com.aprendizado;
+package com.GreenPeak;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class AprendizadoApplicationTests {
+class GreenPeakApplicationTests {
 
 	@Test
 	void contextLoads() {

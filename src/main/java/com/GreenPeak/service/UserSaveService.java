@@ -1,8 +1,8 @@
-package com.aprendizado.service;
+package com.GreenPeak.service;
 
-import com.aprendizado.model.User;
-import com.aprendizado.model.UserDTO;
-import com.aprendizado.repository.UserRepository;
+import com.GreenPeak.model.User;
+import com.GreenPeak.model.UserDTO;
+import com.GreenPeak.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
 @Service

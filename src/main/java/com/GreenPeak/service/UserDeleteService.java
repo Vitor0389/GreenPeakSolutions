@@ -1,7 +1,7 @@
-package com.aprendizado.service;
+package com.GreenPeak.service;
 
-import com.aprendizado.model.User;
-import com.aprendizado.repository.UserRepository;
+import com.GreenPeak.model.User;
+import com.GreenPeak.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;

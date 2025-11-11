@@ -1,4 +1,4 @@
-package com.aprendizado.model;
+package com.GreenPeak.model;
 
 import java.util.UUID;
 
