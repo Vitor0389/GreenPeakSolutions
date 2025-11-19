@@ -31,10 +31,9 @@ public class ResiduoService {
     public Residuo atualizar(Long id, Residuo novosDados) {
         return repository.findById(id)
                 .map(residuo -> {
-                    residuo.setNome(novosDados.getNome());
-                    residuo.setTipo(novosDados.getTipo());
-                    residuo.setPeso(novosDados.getPeso());
-                    residuo.setDestinoFinal(novosDados.getDestinoFinal());
+                    residuo.setTipoResiduo(novosDados.getTipoResiduo());
+                    residuo.setQuantidade(novosDados.getQuantidade());
+                    residuo.setDataColeta(novosDados.getDataColeta());
                     return repository.save(residuo);
                 })
                 .orElseThrow(() -> new RuntimeException("Resíduo não encontrado"));

@@ -16,12 +16,11 @@ public class Residuo {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String nome;
+    private String tipoResiduo;
 
-    private String tipo;
+    private Double quantidade;
 
-    private Double peso;
+    private java.util.Date dataColeta;
 
-    private String destinoFinal;
+
 }
-

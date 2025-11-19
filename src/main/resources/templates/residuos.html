@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>GreenPeak - Resíduos</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+<div class="container">
+    <h1>Lista de Resíduos</h1>
+    <a href="/residuos/novo" class="btn btn-primary mb-3">Novo Resíduo</a>
+    <table class="table">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Tipo de Resíduo</th>
+            <th>Quantidade</th>
+            <th>Data da Coleta</th>
+            <th>Ações</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="residuo : ${residuos}">
+            <td th:text="${residuo.id}"></td>
+            <td th:text="${residuo.tipoResiduo}"></td>
+            <td th:text="${residuo.quantidade}"></td>
+            <td th:text="${#dates.format(residuo.dataColeta, 'dd/MM/yyyy')}"></td>
+            <td>
+                <a th:href="@{/residuos/editar/{id}(id=${residuo.id})}" class="btn btn-sm btn-info">Editar</a>
+                <a th:href="@{/residuos/deletar/{id}(id=${residuo.id})}" class="btn btn-sm btn-danger">Deletar</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>
+

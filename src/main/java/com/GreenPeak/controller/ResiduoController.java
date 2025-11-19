@@ -2,12 +2,11 @@ package com.GreenPeak.controller;
 
 import com.GreenPeak.model.Residuo;
 import com.GreenPeak.service.Residuo.ResiduoService;
-import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
-@RestController
+@Controller
 @RequestMapping("/residuos")
 public class ResiduoController {
 
@@ -18,35 +17,34 @@ public class ResiduoController {
     }
 
     @GetMapping
-    public List<Residuo> listarTodos() {
-        return service.listarTodos();
+    public String listarTodos(Model model) {
+        model.addAttribute("residuos", service.listarTodos());
+        return "residuos";
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Residuo> buscarPorId(@PathVariable Long id) {
-        return service.buscarPorId(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    @GetMapping("/novo")
+    public String mostrarFormularioDeNovoResiduo(Model model) {
+        model.addAttribute("residuo", new Residuo());
+        return "residuo-form";
     }
 
     @PostMapping
-    public Residuo criar(@RequestBody Residuo residuo) {
-        return service.salvar(residuo);
+    public String criar(@ModelAttribute Residuo residuo) {
+        service.salvar(residuo);
+        return "redirect:/residuos";
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<Residuo> atualizar(@PathVariable Long id, @RequestBody Residuo novosDados) {
-        try {
-            Residuo atualizado = service.atualizar(id, novosDados);
-            return ResponseEntity.ok(atualizado);
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
+    @GetMapping("/editar/{id}")
+    public String mostrarFormularioDeEdicao(@PathVariable Long id, Model model) {
+        Residuo residuo = service.buscarPorId(id)
+                .orElseThrow(() -> new IllegalArgumentException("ID de resíduo inválido:" + id));
+        model.addAttribute("residuo", residuo);
+        return "residuo-form";
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletar(@PathVariable Long id) {
+    @GetMapping("/deletar/{id}")
+    public String deletar(@PathVariable Long id) {
         service.deletar(id);
-        return ResponseEntity.noContent().build();
+        return "redirect:/residuos";
     }
 }
