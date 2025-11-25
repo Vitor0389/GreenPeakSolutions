@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Login - GreenPeak</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body { margin:0; font-family: Arial, sans-serif; background: #f5f7fa; display:flex; align-items:center; justify-content:center; min-height:100vh; }
+        .container { background:#fff; border-radius:10px; box-shadow:0 4px 10px rgba(0,0,0,0.08); padding:2rem; width:100%; max-width:380px; }
+        h1 { margin:0 0 0.5rem; font-size:1.5rem; color:#1b5e20; }
+        p.subtitle { margin:0 0 1.5rem; font-size:0.9rem; color:#555; }
+        label { display:block; margin-bottom:0.25rem; font-size:0.85rem; color:#444; }
+        input { width:100%; padding:0.6rem 0.7rem; border-radius:4px; border:1px solid #ccd; box-sizing:border-box; font-size:0.9rem; }
+        .field { margin-bottom:1rem; }
+        button { width:100%; padding:0.7rem; border:none; border-radius:4px; cursor:pointer; font-size:0.95rem; font-weight:bold; }
+        .btn-primary { background:#2e7d32; color:#fff; }
+        .btn-primary:disabled { opacity:0.6; cursor:not-allowed; }
+        .link { margin-top:0.75rem; text-align:center; font-size:0.85rem; }
+        .link a { color:#2e7d32; text-decoration:none; }
+        .link a:hover { text-decoration:underline; }
+        .msg { margin-top:0.75rem; font-size:0.85rem; display:none; }
+        .msg.error { color:#c62828; }
+        .msg.success { color:#2e7d32; }
+        .small { font-size:0.75rem; color:#777; margin-top:0.5rem; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>GreenPeak</h1>
+    <p class="subtitle">Acesse sua conta para gerenciar resíduos.</p>
+
+    <form id="login-form" onsubmit="fazerLogin(event)">
+        <div class="field">
+            <label for="email">E-mail</label>
+            <input type="email" id="email" autocomplete="email" required>
+        </div>
+        <div class="field">
+            <label for="nome">Nome</label>
+            <input type="text" id="nome" autocomplete="name" placeholder="Opcional">
+        </div>
+        <button id="btn-login" type="submit" class="btn-primary">Entrar</button>
+        <div id="mensagem" class="msg" ></div>
+        <p class="small" >Não tem cadastro?</p>
+        <div class="link" style="text-align: center">
+            <a href="/register.html">Cadastre-se</a>
+        </div>
+    </form>
+
+
+</div>
+
+<script>
+
+    const USERS_ENDPOINT = '/users';
+
+    function mostrarMensagem(texto, erro) {
+        const msg = document.getElementById('mensagem');
+        msg.textContent = texto;
+        msg.classList.remove('error', 'success');
+        msg.classList.add(erro ? 'error' : 'success');
+        msg.style.display = 'block';
+    }
+
+    function setCarregando(carregando) {
+        const btn = document.getElementById('btn-login');
+        btn.disabled = carregando;
+        btn.textContent = carregando ? 'Entrando...' : 'Entrar';
+    }
+
+    async function fazerLogin(event) {
+        event.preventDefault();
+        const email = document.getElementById('email').value.trim();
+
+        if (!email) {
+            mostrarMensagem('Informe um e-mail válido.', true);
+            return;
+        }
+
+        setCarregando(true);
+
+        try {
+            let lista;
+            try {
+                const listaResp = await fetch(USERS_ENDPOINT);
+                if (!listaResp.ok) {
+                    throw new Error('Erro ao buscar usuários. Código: ' + listaResp.status + ' ' + listaResp.statusText);
+                }
+                lista = await listaResp.json();
+            } catch (err) {
+                console.error('Falha na chamada para /users:', err);
+                mostrarMensagem('Não foi possível conectar ao servidor de usuários. Verifique se a API está rodando e tente novamente.', true);
+                return;
+            }
+
+            let usuario = null;
+            if (Array.isArray(lista)) {
+                usuario = lista.find(u => u.email && u.email.toLowerCase() === email.toLowerCase());
+            }
+
+            if (!usuario) {
+                mostrarMensagem('Usuário não encontrado. Verifique o e-mail ou cadastre-se primeiro.', true);
+                return;
+            }
+
+            mostrarMensagem('Login efetuado com sucesso!', false);
+
+            // Armazena dados do usuário logado
+            if (usuario && (usuario.id || usuario.uuid)) {
+                const uuid = usuario.uuid || usuario.id;
+                localStorage.setItem('user_uuid', uuid);
+                localStorage.setItem('user_name', usuario.name || '');
+                localStorage.setItem('user_email', usuario.email || email);
+            }
+
+            setTimeout(() => {
+                window.location.href = '/residuos.html';
+            }, 800);
+
+        } catch (e) {
+            console.error('Erro geral no login:', e);
+            mostrarMensagem(e.message || 'Erro ao realizar login.', true);
+        } finally {
+            setCarregando(false);
+        }
+    }
+
+    (function inicializar() {
+        const emailSalvo = localStorage.getItem('user_email') || localStorage.getItem('user_email_tmp');
+        const nomeSalvo = localStorage.getItem('user_name_tmp');
+        if (emailSalvo) {
+            document.getElementById('email').value = emailSalvo;
+        }
+        if (nomeSalvo) {
+            const nomeInput = document.getElementById('nome');
+            if (nomeInput) {
+                nomeInput.value = nomeSalvo;
+            }
+        }
+    })();
+</script>
+</body>
+</html>

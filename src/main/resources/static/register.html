@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Cadastro de Usuário - GreenPeak</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body { margin:0; font-family: Arial, sans-serif; background: #f5f7fa; display:flex; align-items:center; justify-content:center; min-height:100vh; }
+        .container { background:#fff; border-radius:10px; box-shadow:0 4px 10px rgba(0,0,0,0.08); padding:2rem; width:100%; max-width:380px; }
+        h1 { margin:0 0 0.5rem; font-size:1.5rem; color:#1b5e20; }
+        p.subtitle { margin:0 0 1.5rem; font-size:0.9rem; color:#555; }
+        label { display:block; margin-bottom:0.25rem; font-size:0.85rem; color:#444; }
+        input { width:100%; padding:0.6rem 0.7rem; border-radius:4px; border:1px solid #ccd; box-sizing:border-box; font-size:0.9rem; }
+        .field { margin-bottom:1rem; }
+        button { width:100%; padding:0.7rem; border:none; border-radius:4px; cursor:pointer; font-size:0.95rem; font-weight:bold; }
+        .btn-primary { background:#2e7d32; color:#fff; }
+        .btn-primary:disabled { opacity:0.6; cursor:not-allowed; }
+        .link { margin-top:0.75rem; text-align:center; font-size:0.85rem; }
+        .link a { color:#2e7d32; text-decoration:none; }
+        .link a:hover { text-decoration:underline; }
+        .msg { margin-top:0.75rem; font-size:0.85rem; display:none; }
+        .msg.error { color:#c62828; }
+        .msg.success { color:#2e7d32; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Criar conta</h1>
+    <p class="subtitle">Cadastre-se para acessar o sistema.</p>
+
+    <form id="register-form" onsubmit="cadastrarUsuario(event)">
+        <div class="field">
+            <label for="nome">Nome</label>
+            <input type="text" id="nome" autocomplete="name" required>
+        </div>
+        <div class="field">
+            <label for="email">E-mail</label>
+            <input type="email" id="email" autocomplete="email" required>
+        </div>
+        <button id="btn-register" type="submit" class="btn-primary">Cadastrar</button>
+        <div id="mensagem" class="msg"></div>
+    </form>
+
+    <div class="link">
+        Já tem conta? <a href="/login.html">Ir para login</a>
+    </div>
+</div>
+
+<script>
+    const USER_ENDPOINT = '/user';
+
+    function mostrarMensagem(texto, erro) {
+        const msg = document.getElementById('mensagem');
+        msg.textContent = texto;
+        msg.classList.remove('error', 'success');
+        msg.classList.add(erro ? 'error' : 'success');
+        msg.style.display = 'block';
+    }
+
+    function setCarregando(carregando) {
+        const btn = document.getElementById('btn-register');
+        btn.disabled = carregando;
+        btn.textContent = carregando ? 'Cadastrando...' : 'Cadastrar';
+    }
+
+    async function cadastrarUsuario(event) {
+        event.preventDefault();
+        const nome = document.getElementById('nome').value.trim();
+        const email = document.getElementById('email').value.trim();
+
+        if (!nome || !email) {
+            mostrarMensagem('Preencha nome e e-mail.', true);
+            return;
+        }
+
+        setCarregando(true);
+
+        try {
+            const payload = { name: nome, email: email };
+            const resp = await fetch(USER_ENDPOINT, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (!resp.ok) {
+                throw new Error('Erro ao cadastrar usuário. Código: ' + resp.status + ' ' + resp.statusText);
+            }
+
+            const usuario = await resp.json();
+            // Salva em localStorage apenas para conveniência de preenchimento automático no login
+            if (usuario && (usuario.id || usuario.uuid)) {
+                const uuid = usuario.uuid || usuario.id;
+                localStorage.setItem('user_uuid', uuid);
+            }
+            localStorage.setItem('user_name_tmp', nome);
+            localStorage.setItem('user_email_tmp', email);
+
+            mostrarMensagem('Usuário cadastrado com sucesso! Redirecionando para login...', false);
+
+            setTimeout(() => {
+                window.location.href = '/login.html';
+            }, 1200);
+
+        } catch (e) {
+            console.error('Erro ao cadastrar usuário:', e);
+            mostrarMensagem(e.message || 'Erro ao cadastrar usuário.', true);
+        } finally {
+            setCarregando(false);
+        }
+    }
+</script>
+</body>
+</html>
+
