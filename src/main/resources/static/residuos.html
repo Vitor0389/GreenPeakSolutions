@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestão de Resíduos</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #f5f7fa; }
+        header { background: #1b5e20; color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
+        header h1 { margin: 0; font-size: 1.4rem; }
+        main { padding: 1.5rem 2rem; }
+        .card { background: white; border-radius: 8px; padding: 1.5rem; box-shadow: 0 2px 4px rgba(0,0,0,0.06); margin-bottom: 1.5rem; }
+        .card h2 { margin-top: 0; font-size: 1.2rem; }
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; }
+        label { font-size: 0.85rem; color: #555; display: block; margin-bottom: 0.25rem; }
+        input, select { width: 100%; padding: 0.5rem; border-radius: 4px; border: 1px solid #ccd; box-sizing: border-box; }
+        .actions { margin-top: 1rem; display: flex; gap: 0.5rem; flex-wrap: wrap; }
+        button { border: none; padding: 0.6rem 1rem; border-radius: 4px; cursor: pointer; font-size: 0.9rem; }
+        .btn-primary { background: #2e7d32; color: white; }
+        .btn-secondary { background: #e0e0e0; color: #333; }
+        .btn-danger { background: #c62828; color: white; }
+        table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+        th, td { padding: 0.6rem; border-bottom: 1px solid #eee; font-size: 0.9rem; text-align: left; }
+        th { background: #f0f0f0; }
+        tr:hover { background: #fafafa; }
+        .badge { padding: 0.15rem 0.5rem; border-radius: 999px; font-size: 0.75rem; background: #e8f5e9; color: #1b5e20; }
+        .error { color: #c62828; font-size: 0.85rem; margin-top: 0.5rem; }
+        .success { color: #2e7d32; font-size: 0.85rem; margin-top: 0.5rem; }
+        .hidden { display: none; }
+        @media (max-width: 600px) {
+            header, main { padding: 1rem; }
+        }
+    </style>
+</head>
+<body>
+<header>
+    <h1>Gestão de Resíduos</h1>
+    <div>
+        <button class="btn-secondary" onclick="carregarResiduos()">Recarregar</button>
+    </div>
+</header>
+
+<main>
+    <section class="card">
+        <h2>Cadastrar / Editar Resíduo</h2>
+        <form id="residuo-form" onsubmit="salvarResiduo(event)">
+            <input type="hidden" id="residuo-id">
+            <div class="form-grid">
+                <div>
+                    <label for="nome">Nome</label>
+                    <input type="text" id="nome" required>
+                </div>
+                <div>
+                    <label for="tipo">Tipo</label>
+                    <select id="tipo" required>
+                        <option value="">Selecione...</option>
+                        <option value="Orgânico">Orgânico</option>
+                        <option value="Reciclável">Reciclável</option>
+                        <option value="Perigoso">Perigoso</option>
+                        <option value="Outros">Outros</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="peso">Peso (kg)</label>
+                    <input type="number" id="peso" step="0.01" min="0" required>
+                </div>
+                <div>
+                    <label for="destinoFinal">Destino final</label>
+                    <input type="text" id="destinoFinal" required>
+                </div>
+            </div>
+            <div class="actions">
+                <button type="submit" class="btn-primary">Salvar</button>
+                <button type="button" class="btn-secondary" onclick="resetForm()">Limpar</button>
+            </div>
+            <div id="mensagem" class="hidden"></div>
+        </form>
+    </section>
+
+    <section class="card">
+        <h2>Lista de Resíduos</h2>
+        <table>
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nome</th>
+                <th>Tipo</th>
+                <th>Peso (kg)</th>
+                <th>Destino final</th>
+                <th>Ações</th>
+            </tr>
+            </thead>
+            <tbody id="tabela-residuos">
+            <tr><td colspan="6">Carregando...</td></tr>
+            </tbody>
+        </table>
+    </section>
+</main>
+
+<script>
+    const API_BASE = '/residuos'; // mesmo contexto do backend
+
+    async function carregarResiduos() {
+        const corpoTabela = document.getElementById('tabela-residuos');
+        corpoTabela.innerHTML = '<tr><td colspan="6">Carregando...</td></tr>';
+        try {
+            const resposta = await fetch(API_BASE);
+            if (!resposta.ok) throw new Error('Erro ao buscar resíduos');
+            const dados = await resposta.json();
+            if (!Array.isArray(dados) || dados.length === 0) {
+                corpoTabela.innerHTML = '<tr><td colspan="6">Nenhum resíduo cadastrado.</td></tr>';
+                return;
+            }
+            corpoTabela.innerHTML = '';
+            dados.forEach(r => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${r.id}</td>
+                    <td>${r.nome}</td>
+                    <td><span class="badge">${r.tipo || ''}</span></td>
+                    <td>${r.peso != null ? r.peso.toFixed(2) : ''}</td>
+                    <td>${r.destinoFinal || ''}</td>
+                    <td>
+                        <button class="btn-secondary" onclick="editarResiduo(${r.id})">Editar</button>
+                        <button class="btn-danger" onclick="deletarResiduo(${r.id})">Excluir</button>
+                    </td>
+                `;
+                corpoTabela.appendChild(tr);
+            });
+        } catch (e) {
+            corpoTabela.innerHTML = `<tr><td colspan="6" style="color:#c62828;">${e.message}</td></tr>`;
+        }
+    }
+
+    async function editarResiduo(id) {
+        try {
+            const resposta = await fetch(`${API_BASE}/${id}`);
+            if (resposta.status === 404) {
+                mostrarMensagem('Resíduo não encontrado', true);
+                return;
+            }
+            if (!resposta.ok) throw new Error('Erro ao buscar resíduo');
+            const r = await resposta.json();
+            document.getElementById('residuo-id').value = r.id;
+            document.getElementById('nome').value = r.nome || '';
+            document.getElementById('tipo').value = r.tipo || '';
+            document.getElementById('peso').value = r.peso != null ? r.peso : '';
+            document.getElementById('destinoFinal').value = r.destinoFinal || '';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        } catch (e) {
+            mostrarMensagem(e.message, true);
+        }
+    }
+
+    async function salvarResiduo(event) {
+        event.preventDefault();
+        const id = document.getElementById('residuo-id').value;
+        const payload = {
+            nome: document.getElementById('nome').value.trim(),
+            tipo: document.getElementById('tipo').value,
+            peso: parseFloat(document.getElementById('peso').value),
+            destinoFinal: document.getElementById('destinoFinal').value.trim()
+        };
+
+        if (!payload.nome || !payload.tipo || isNaN(payload.peso) || !payload.destinoFinal) {
+            mostrarMensagem('Preencha todos os campos corretamente.', true);
+            return;
+        }
+
+        try {
+            const url = id ? `${API_BASE}/${id}` : API_BASE;
+            const metodo = id ? 'PUT' : 'POST';
+            const resposta = await fetch(url, {
+                method: metodo,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (!resposta.ok) throw new Error('Erro ao salvar resíduo');
+
+            mostrarMensagem('Resíduo salvo com sucesso!', false);
+            resetForm();
+            await carregarResiduos();
+        } catch (e) {
+            mostrarMensagem(e.message, true);
+        }
+    }
+
+    async function deletarResiduo(id) {
+        if (!confirm('Tem certeza que deseja excluir este resíduo?')) return;
+        try {
+            const resposta = await fetch(`${API_BASE}/${id}`, { method: 'DELETE' });
+            if (!resposta.ok && resposta.status !== 204) throw new Error('Erro ao excluir resíduo');
+            mostrarMensagem('Resíduo excluído com sucesso!', false);
+            await carregarResiduos();
+        } catch (e) {
+            mostrarMensagem(e.message, true);
+        }
+    }
+
+    function resetForm() {
+        document.getElementById('residuo-form').reset();
+        document.getElementById('residuo-id').value = '';
+    }
+
+    function mostrarMensagem(texto, erro) {
+        const div = document.getElementById('mensagem');
+        div.classList.remove('hidden', 'error', 'success');
+        div.classList.add(erro ? 'error' : 'success');
+        div.textContent = texto;
+        setTimeout(() => {
+            div.classList.add('hidden');
+        }, 3000);
+    }
+
+    // Carrega lista ao abrir a página
+    carregarResiduos();
+</script>
+</body>
+</html>
+
