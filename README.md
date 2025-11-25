@@ -14,7 +14,7 @@ Abrir no navegador
 
 Após o backend estar rodando, abra no navegador:
 ```bash
-http://localhost:8080/residuos.html
+http://localhost:8080/login.html
 ````
 
 
