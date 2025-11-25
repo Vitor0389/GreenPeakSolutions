@@ -10,8 +10,6 @@ mvnw.cmd spring-boot:run
 Após iniciar, a API estará disponível em:
 * http://localhost:8080
 
-Abrir no navegador
-
 Após o backend estar rodando, abra no navegador:
 ```bash
 http://localhost:8080/login.html
