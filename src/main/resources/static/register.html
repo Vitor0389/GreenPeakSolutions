@@ -30,12 +30,12 @@
 
     <form id="register-form" onsubmit="cadastrarUsuario(event)">
         <div class="field">
-            <label for="nome">Nome</label>
-            <input type="text" id="nome" autocomplete="name" required>
-        </div>
-        <div class="field">
             <label for="email">E-mail</label>
             <input type="email" id="email" autocomplete="email" required>
+        </div>
+        <div class="field">
+            <label for="senha">Senha</label>
+            <input type="password" id="senha" autocomplete="new-password" required>
         </div>
         <button id="btn-register" type="submit" class="btn-primary">Cadastrar</button>
         <div id="mensagem" class="msg"></div>
@@ -65,18 +65,18 @@
 
     async function cadastrarUsuario(event) {
         event.preventDefault();
-        const nome = document.getElementById('nome').value.trim();
         const email = document.getElementById('email').value.trim();
+        const senha = document.getElementById('senha').value.trim();
 
-        if (!nome || !email) {
-            mostrarMensagem('Preencha nome e e-mail.', true);
+        if (!email || !senha) {
+            mostrarMensagem('Preencha e-mail e senha.', true);
             return;
         }
 
         setCarregando(true);
 
         try {
-            const payload = { name: nome, email: email };
+            const payload = { email: email, password: senha };
             const resp = await fetch(USER_ENDPOINT, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -88,12 +88,10 @@
             }
 
             const usuario = await resp.json();
-            // Salva em localStorage apenas para conveniência de preenchimento automático no login
             if (usuario && (usuario.id || usuario.uuid)) {
                 const uuid = usuario.uuid || usuario.id;
                 localStorage.setItem('user_uuid', uuid);
             }
-            localStorage.setItem('user_name_tmp', nome);
             localStorage.setItem('user_email_tmp', email);
 
             mostrarMensagem('Usuário cadastrado com sucesso! Redirecionando para login...', false);
@@ -112,4 +110,3 @@
 </script>
 </body>
 </html>
-

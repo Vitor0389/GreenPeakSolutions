@@ -17,26 +17,25 @@ public class UserUpdateService {
         this.repo = repo;
     }
 
-    public Optional<User> update(UUID uuid, String name, String email){
-
+    public Optional<User> update(UUID uuid, String email, String password){
         return repo.findById(uuid).map(user -> {
-            if (name != null) user.setName(name);
             if (email != null) user.setEmail(email);
-            return repo.save(user); // salva e retorna
-        });
-    }
-
-    public Optional<User> updateName(UUID uuid, String name){
-        return repo.findById(uuid).map(user -> {
-            if (name != null) user.setName(name);
-            return repo.save(user); // salva e retorna
+            if (password != null) user.setPassword(password);
+            return repo.save(user);
         });
     }
 
     public Optional<User> updateEmail(UUID uuid, String email){
         return repo.findById(uuid).map(user -> {
             if (email != null) user.setEmail(email);
-            return repo.save(user); // salva e retorna
+            return repo.save(user);
+        });
+    }
+
+    public Optional<User> updatePassword(UUID uuid, String password){
+        return repo.findById(uuid).map(user -> {
+            if (password != null) user.setPassword(password);
+            return repo.save(user);
         });
     }
 }

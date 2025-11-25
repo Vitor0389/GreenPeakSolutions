@@ -35,22 +35,20 @@
             <input type="email" id="email" autocomplete="email" required>
         </div>
         <div class="field">
-            <label for="nome">Nome</label>
-            <input type="text" id="nome" autocomplete="name" placeholder="Opcional">
+            <label for="senha">Senha</label>
+            <input type="password" id="senha" autocomplete="current-password" required>
         </div>
         <button id="btn-login" type="submit" class="btn-primary">Entrar</button>
-        <div id="mensagem" class="msg" ></div>
-        <p class="small" >Não tem cadastro?</p>
-        <div class="link" style="text-align: center">
-            <a href="/register.html">Cadastre-se</a>
-        </div>
+        <div id="mensagem" class="msg"></div>
+        <p class="small">Não tem cadastro?</p>
     </form>
 
-
+    <div class="link">
+        <a href="/register.html">Cadastre-se</a>
+    </div>
 </div>
 
 <script>
-
     const USERS_ENDPOINT = '/users';
 
     function mostrarMensagem(texto, erro) {
@@ -70,9 +68,10 @@
     async function fazerLogin(event) {
         event.preventDefault();
         const email = document.getElementById('email').value.trim();
+        const senha = document.getElementById('senha').value.trim();
 
-        if (!email) {
-            mostrarMensagem('Informe um e-mail válido.', true);
+        if (!email || !senha) {
+            mostrarMensagem('Informe e-mail e senha.', true);
             return;
         }
 
@@ -94,21 +93,22 @@
 
             let usuario = null;
             if (Array.isArray(lista)) {
-                usuario = lista.find(u => u.email && u.email.toLowerCase() === email.toLowerCase());
+                usuario = lista.find(u =>
+                    u.email && u.email.toLowerCase() === email.toLowerCase() &&
+                    u.password === senha
+                );
             }
 
             if (!usuario) {
-                mostrarMensagem('Usuário não encontrado. Verifique o e-mail ou cadastre-se primeiro.', true);
+                mostrarMensagem('Credenciais inválidas. Verifique e-mail e senha ou cadastre-se primeiro.', true);
                 return;
             }
 
             mostrarMensagem('Login efetuado com sucesso!', false);
 
-            // Armazena dados do usuário logado
             if (usuario && (usuario.id || usuario.uuid)) {
                 const uuid = usuario.uuid || usuario.id;
                 localStorage.setItem('user_uuid', uuid);
-                localStorage.setItem('user_name', usuario.name || '');
                 localStorage.setItem('user_email', usuario.email || email);
             }
 
@@ -126,15 +126,8 @@
 
     (function inicializar() {
         const emailSalvo = localStorage.getItem('user_email') || localStorage.getItem('user_email_tmp');
-        const nomeSalvo = localStorage.getItem('user_name_tmp');
         if (emailSalvo) {
             document.getElementById('email').value = emailSalvo;
-        }
-        if (nomeSalvo) {
-            const nomeInput = document.getElementById('nome');
-            if (nomeInput) {
-                nomeInput.value = nomeSalvo;
-            }
         }
     })();
 </script>

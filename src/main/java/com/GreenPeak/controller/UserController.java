@@ -32,8 +32,6 @@ public class UserController {
         this.userDeleteService = userDeleteService;
     }
 
-
-
     @GetMapping("/user/{uuid}")
     public Optional<User> getUser(@PathVariable UUID uuid){
         return userFindService.findById(uuid);
@@ -50,22 +48,27 @@ public class UserController {
     }
 
     @PostMapping("/updateuser")
-    public Optional<User> updateUser(@RequestBody UUID uuid, String name, String email){return userUpdateService.update(uuid, name, email);}
-
-    @PostMapping("/updateusername")
-    public Optional<User> updateUserName(@RequestBody UUID uuid, String name){return userUpdateService.updateName(uuid, name);}
+    public Optional<User> updateUser(@RequestParam UUID uuid,
+                                     @RequestParam(required = false) String email,
+                                     @RequestParam(required = false) String password){
+        return userUpdateService.update(uuid, email, password);
+    }
 
     @PostMapping("/updateuseremail")
-    public Optional<User> updateUserEmail(@RequestBody UUID uuid, String email){return userUpdateService.updateEmail(uuid, email);}
+    public Optional<User> updateUserEmail(@RequestParam UUID uuid,
+                                          @RequestParam String email){
+        return userUpdateService.updateEmail(uuid, email);
+    }
+
+    @PostMapping("/updateuserpassword")
+    public Optional<User> updateUserPassword(@RequestParam UUID uuid,
+                                             @RequestParam String password){
+        return userUpdateService.updatePassword(uuid, password);
+    }
 
     @DeleteMapping("/user/{uuid}")
     public void deleteUser(@PathVariable UUID uuid){userDeleteService.delete(uuid);}
 
     @DeleteMapping("/users")
     public void deleteUsers(){userDeleteService.deleteAll();}
-
-
-
-
-
 }
